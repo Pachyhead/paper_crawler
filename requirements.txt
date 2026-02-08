@@ -1,0 +1,4 @@
+beautifulsoup4>=4.12,<5
+pytest>=8,<9
+ruff >= 0.15.0
+pandas>=2,<3
