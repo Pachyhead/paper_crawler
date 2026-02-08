@@ -16,6 +16,7 @@ paper_crawler/
         example_static.py
   utils/
     csv_helper.py
+    timing_logger.py
   tests/
 ```
 
@@ -37,8 +38,16 @@ python main.py --url "~~~" --output "~~~"
 ```python
 from paper_crawler.factory import CrawlerFactory
 from utils.csv_helper import save_titles_to_csv
+from utils.timing_logger import log_execution_time
 
 url = "https://dblp.org/db/conf/emnlp/emnlp2025.html"
-items = CrawlerFactory.crawl(url)
-save_titles_to_csv(items, "./output/emnlp2025_titles.csv")
+with log_execution_time(
+    "crawl_and_save",
+    log_path="./logs/execution.log",
+    logger_name="crawler_timer",
+):
+    items = CrawlerFactory.crawl(url)
+    save_titles_to_csv(items, "./output/emnlp2025_titles.csv")
 ```
+
+- `logger_name`: 로거 식별자(내부 구분용)입니다.

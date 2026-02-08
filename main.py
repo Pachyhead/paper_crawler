@@ -11,7 +11,7 @@ if str(SRC_PATH) not in sys.path:
 
 from paper_crawler.factory import CrawlerFactory
 from utils.csv_helper import save_titles_to_csv
-
+from utils.timing_logger import log_execution_time
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -31,10 +31,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    args = parse_args()
-    crawler = CrawlerFactory.create(args.url)
-    items = crawler.crawl(args.url)
-    output_path = save_titles_to_csv(items, args.output)
+    with log_execution_time("crawl_and_save", log_path="logs/execution.log"):
+        args = parse_args()
+        crawler = CrawlerFactory.create(args.url)
+        items = crawler.crawl(args.url)
+        output_path = save_titles_to_csv(items, args.output)
 
     print(f"saved={output_path}")
     print(f"count={len(items)}")
