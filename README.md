@@ -36,6 +36,14 @@ python main.py --url "~~~" --output "~~~"
 
 ## 4. 세부 사용법
 ```python
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+SRC_PATH = PROJECT_ROOT / "src"
+if str(SRC_PATH) not in sys.path:
+    sys.path.insert(0, str(SRC_PATH))
+
 from paper_crawler.factory import CrawlerFactory
 from utils.csv_helper import save_titles_to_csv
 from utils.timing_logger import log_execution_time
