@@ -15,7 +15,7 @@ def test_save_titles_to_csv(tmp_path):
 
     assert path == output
     assert output.read_text(encoding="utf-8") == (
-        "column_number,title\n"
+        ",title\n"
         "0,First Paper\n"
         "1,Second Paper\n"
         "2,Third Paper\n"

@@ -22,7 +22,11 @@ class BaseCrawler(ABC):
     default_timeout = 10.0
     default_retries = 2
     default_backoff_seconds = 0.5
-    user_agent = "paper-crawler/0.1"
+    user_agent = (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/132.0.0.0 Safari/537.36"
+    )
 
     def __init__(
         self,
