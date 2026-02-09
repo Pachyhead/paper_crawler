@@ -4,7 +4,7 @@ import logging
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterator
+from typing import Any, Iterator
 
 
 def _get_file_logger(
@@ -43,6 +43,7 @@ def log_execution_time(
     log_path: str | Path = "logs/execution.log",
     logger_name: str = "execution_timer",
     level: int = logging.INFO,
+    context: dict[str, Any] | None = None,
 ) -> Iterator[None]:
     """
     Measure block execution time and append it to a log file.
@@ -57,4 +58,10 @@ def log_execution_time(
         yield
     finally:
         elapsed = time.perf_counter() - start
-        logger.log(level, "%s completed in %.4f sec", block_name, elapsed)
+        message = f"{block_name} completed in {elapsed:.4f} sec"
+        if context:
+            context_text = " ".join(
+                f"{key}={value}" for key, value in sorted(context.items())
+            )
+            message = f"{message} | {context_text}"
+        logger.log(level, message)

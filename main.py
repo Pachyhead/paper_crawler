@@ -31,8 +31,12 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    with log_execution_time("crawl_and_save", log_path="logs/execution.log"):
-        args = parse_args()
+    args = parse_args()
+    with log_execution_time(
+        "crawl_and_save",
+        log_path="logs/execution.log",
+        context={"url": args.url},
+    ):
         crawler = CrawlerFactory.create(args.url)
         items = crawler.crawl(args.url)
         output_path = save_titles_to_csv(items, args.output)

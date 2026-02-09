@@ -53,9 +53,11 @@ with log_execution_time(
     "crawl_and_save",
     log_path="./logs/execution.log",
     logger_name="crawler_timer",
+    context={"url": url},
 ):
     items = CrawlerFactory.crawl(url)
     save_titles_to_csv(items, "./output/emnlp2025_titles.csv")
 ```
 
 - `logger_name`: 로거 식별자(내부 구분용)입니다.
+- `context`: 로그에 추가할 정보입니다. 예: `url=https://...`
