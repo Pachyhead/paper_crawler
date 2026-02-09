@@ -30,3 +30,8 @@ def test_aclweb_extract_titles():
 def test_factory_create_aclweb():
     crawler = CrawlerFactory.create("https://2025.aclweb.org/program")
     assert isinstance(crawler, Aclweb)
+
+
+def test_factory_create_aclweb_for_2024():
+    crawler = CrawlerFactory.create("https://2024.aclweb.org/program")
+    assert isinstance(crawler, Aclweb)

@@ -1,29 +1,22 @@
 from __future__ import annotations
 
-from urllib.parse import urlparse
-
 from .base import BaseCrawler
 from .errors import UnsupportedSiteError
-from .sites import Dblp, ExampleStaticCrawler, Aclweb
+from .selection import SelectionStrategy, first_match_selector
+from .sites import get_site_crawlers
 
 
 class CrawlerFactory:
-    """Create crawler instances from URL domain."""
+    """Create crawler instances from URL using a pluggable selection strategy."""
 
-    # Domain -> crawler class mapping
-    domain_map = {
-        "dblp.org": Dblp,
-        "example.com": ExampleStaticCrawler,
-        "2025.aclweb.org": Aclweb
-    }
+    crawler_classes: list[type[BaseCrawler]] = get_site_crawlers()
+    selection_strategy: SelectionStrategy = first_match_selector
 
     @classmethod
     def create(cls, url: str, **crawler_kwargs) -> BaseCrawler:
-        hostname = (urlparse(url).hostname or "").lower().strip()
-        domain = cls._normalize_domain(hostname)
-        crawler_class = cls.domain_map.get(domain)
+        crawler_class = cls.selection_strategy(url, cls.crawler_classes)
         if crawler_class is None:
-            raise UnsupportedSiteError(f"No crawler registered for domain: {domain}")
+            raise UnsupportedSiteError(f"No crawler can handle URL: {url}")
         return crawler_class(**crawler_kwargs)
 
     @classmethod
@@ -31,8 +24,6 @@ class CrawlerFactory:
         crawler = cls.create(url, **crawler_kwargs)
         return crawler.crawl(url)
 
-    @staticmethod
-    def _normalize_domain(hostname: str) -> str:
-        if hostname.startswith("www."):
-            return hostname[4:]
-        return hostname
+    @classmethod
+    def set_strategy(cls, strategy: SelectionStrategy) -> None:
+        cls.selection_strategy = strategy

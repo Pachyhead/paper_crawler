@@ -47,6 +47,11 @@ class BaseCrawler(ABC):
         )
         self.logger = logger or logging.getLogger(self.__class__.__name__)
 
+    @classmethod
+    @abstractmethod
+    def can_handle(cls, url: str) -> bool:
+        """Return True when this crawler can handle the URL."""
+
     @abstractmethod
     def extract_items(self, soup: BeautifulSoup, source_url: str) -> list[dict[str, Any]]:
         """Site-specific parsing logic using direct bs4 code."""

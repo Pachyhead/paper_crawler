@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+from urllib.parse import urlparse
+
 from bs4 import BeautifulSoup
 
 from ..base import BaseCrawler
@@ -8,6 +11,14 @@ from ..base import BaseCrawler
 class Aclweb(BaseCrawler):
     name = "aclweb"
     request_delay_seconds = 4.0
+    host_pattern = re.compile(r"^\d{4}\.aclweb\.org$")
+
+    @classmethod
+    def can_handle(cls, url: str) -> bool:
+        hostname = (urlparse(url).hostname or "").lower().strip()
+        if hostname.startswith("www."):
+            hostname = hostname[4:]
+        return bool(cls.host_pattern.match(hostname))
 
     def extract_items(self, soup: BeautifulSoup, source_url: str):
         items: list[dict] = []
