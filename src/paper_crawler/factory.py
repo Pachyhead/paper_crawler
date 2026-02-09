@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 from .base import BaseCrawler
 from .errors import UnsupportedSiteError
-from .sites import Dblp, ExampleStaticCrawler
+from .sites import Dblp, ExampleStaticCrawler, Aclweb
 
 
 class CrawlerFactory:
@@ -14,6 +14,7 @@ class CrawlerFactory:
     domain_map = {
         "dblp.org": Dblp,
         "example.com": ExampleStaticCrawler,
+        "2025.aclweb.org": Aclweb
     }
 
     @classmethod
