@@ -1,5 +1,5 @@
-from paper_crawler.factory import CrawlerFactory
-from paper_crawler.sites.example_static import ExampleStaticCrawler
+from paper_crawler.factories.title_factory import TitleCrawlerFactory
+from paper_crawler.title_crawlers.example_static import ExampleStaticPaperTitleCrawler
 
 
 def test_example_static_extract_items():
@@ -18,26 +18,26 @@ def test_example_static_extract_items():
     </html>
     """
 
-    crawler = ExampleStaticCrawler()
+    crawler = ExampleStaticPaperTitleCrawler()
     soup = crawler.parse_html(html)
     items = crawler.extract_items(soup, "https://example.com/papers")
 
     assert len(items) == 1
     assert items[0]["title"] == "Paper A"
     assert items[0]["url"] == "https://example.com/paper-a"
-    assert items[0]["authors"] == ["Alice", "Bob"]
+    assert items[0]["authors"] == "Alice, Bob"
 
 
 def test_factory_create():
-    crawler = CrawlerFactory.create("https://example.com/papers")
-    assert isinstance(crawler, ExampleStaticCrawler)
+    crawler = TitleCrawlerFactory.create("https://example.com/papers")
+    assert isinstance(crawler, ExampleStaticPaperTitleCrawler)
 
 
 def test_factory_create_with_www_domain():
-    crawler = CrawlerFactory.create("https://www.example.com/papers")
-    assert isinstance(crawler, ExampleStaticCrawler)
+    crawler = TitleCrawlerFactory.create("https://www.example.com/papers")
+    assert isinstance(crawler, ExampleStaticPaperTitleCrawler)
 
 
 def test_site_specific_request_delay():
-    crawler = ExampleStaticCrawler()
+    crawler = ExampleStaticPaperTitleCrawler()
     assert crawler.request_delay_seconds == 4.0

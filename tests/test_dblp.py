@@ -1,5 +1,5 @@
-from paper_crawler.factory import CrawlerFactory
-from paper_crawler.sites.dblp import Dblp
+from paper_crawler.factories.title_factory import TitleCrawlerFactory
+from paper_crawler.title_crawlers.dblp import DblpPaperTitleCrawler
 
 
 def test_dblp_extract_titles():
@@ -24,7 +24,7 @@ def test_dblp_extract_titles():
     </html>
     """
 
-    crawler = Dblp()
+    crawler = DblpPaperTitleCrawler()
     soup = crawler.parse_html(html)
     items = crawler.extract_items(soup, "https://dblp.org/db/conf/emnlp/emnlp2025.html")
 
@@ -44,7 +44,7 @@ def test_dblp_crawl_pipeline_normalizes_and_adds_meta():
     </html>
     """
 
-    class FakeDblp(Dblp):
+    class FakeDblp(DblpPaperTitleCrawler):
         def fetch_html(self, url: str) -> str:
             return html
 
@@ -61,10 +61,10 @@ def test_dblp_crawl_pipeline_normalizes_and_adds_meta():
 
 
 def test_factory_create_dblp():
-    crawler = CrawlerFactory.create("https://dblp.org/db/conf/emnlp/emnlp2025.html")
-    assert isinstance(crawler, Dblp)
+    crawler = TitleCrawlerFactory.create("https://dblp.org/db/conf/emnlp/emnlp2025.html")
+    assert isinstance(crawler, DblpPaperTitleCrawler)
 
 
 def test_factory_create_dblp_with_www():
-    crawler = CrawlerFactory.create("https://www.dblp.org/db/conf/emnlp/emnlp2025.html")
-    assert isinstance(crawler, Dblp)
+    crawler = TitleCrawlerFactory.create("https://www.dblp.org/db/conf/emnlp/emnlp2025.html")
+    assert isinstance(crawler, DblpPaperTitleCrawler)

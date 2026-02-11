@@ -1,27 +1,23 @@
 from __future__ import annotations
 
 import re
-from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 
-from ..base import BaseCrawler
+from ..title import BasePaperTitleCrawler
 
 
-class Aclweb(BaseCrawler):
+class AclwebPaperTitleCrawler(BasePaperTitleCrawler):
     name = "aclweb"
     request_delay_seconds = 4.0
-    host_pattern = re.compile(r"^\d{4}\.aclweb\.org$")
+    _HOST_PATTERN = re.compile(r"^\d{4}\.aclweb\.org$")
 
     @classmethod
-    def can_handle(cls, url: str) -> bool:
-        hostname = (urlparse(url).hostname or "").lower().strip()
-        if hostname.startswith("www."):
-            hostname = hostname[4:]
-        return bool(cls.host_pattern.match(hostname))
+    def host_pattern(cls) -> re.Pattern[str]:
+        return cls._HOST_PATTERN
 
-    def extract_items(self, soup: BeautifulSoup, source_url: str):
-        items: list[dict] = []
+    def extract_items(self, soup: BeautifulSoup, source_url: str) -> list[dict[str, str]]:
+        items: list[dict[str, str]] = []
         seen_titles: set[str] = set()
 
         title_nodes = soup.select("section.page__content ul li strong")

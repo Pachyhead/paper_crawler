@@ -1,25 +1,23 @@
 from __future__ import annotations
 
-from urllib.parse import urlparse
+import re
 
 from bs4 import BeautifulSoup
 
-from ..base import BaseCrawler
+from ..title import BasePaperTitleCrawler
 
 
-class Dblp(BaseCrawler):
+class DblpPaperTitleCrawler(BasePaperTitleCrawler):
     name = "dblp"
     request_delay_seconds = 4.0
+    _HOST_PATTERN = re.compile(r"^dblp\.org$")
 
     @classmethod
-    def can_handle(cls, url: str) -> bool:
-        hostname = (urlparse(url).hostname or "").lower().strip()
-        if hostname.startswith("www."):
-            hostname = hostname[4:]
-        return hostname == "dblp.org"
+    def host_pattern(cls) -> re.Pattern[str]:
+        return cls._HOST_PATTERN
 
-    def extract_items(self, soup: BeautifulSoup, source_url: str):
-        items: list[dict] = []
+    def extract_items(self, soup: BeautifulSoup, source_url: str) -> list[dict[str, str]]:
+        items: list[dict[str, str]] = []
         seen_titles: set[str] = set()
 
         # Preferred path for DBLP venue pages.

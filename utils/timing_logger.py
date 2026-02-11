@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 
-def _get_file_logger(
+def get_file_logger(
     *,
     log_path: str | Path,
     logger_name: str = "execution_timer",
@@ -43,6 +43,7 @@ def log_execution_time(
     log_path: str | Path = "logs/execution.log",
     logger_name: str = "execution_timer",
     level: int = logging.INFO,
+    logger: logging.Logger | None = None,
     context: dict[str, Any] | None = None,
 ) -> Iterator[None]:
     """
@@ -52,16 +53,30 @@ def log_execution_time(
         with log_execution_time("crawl_emnlp"):
             run_crawler()
     """
-    logger = _get_file_logger(log_path=log_path, logger_name=logger_name, level=level)
+    target_logger = logger or get_file_logger(
+        log_path=log_path,
+        logger_name=logger_name,
+        level=level,
+    )
     start = time.perf_counter()
+    status = "success"
+    error_text = ""
     try:
         yield
+    except Exception as exc:
+        status = "failed"
+        error_text = f"{type(exc).__name__}:{exc}"
+        raise
     finally:
         elapsed = time.perf_counter() - start
-        message = f"{block_name} completed in {elapsed:.4f} sec"
+        message = f"{block_name} status={status} elapsed_sec={elapsed:.4f}"
         if context:
             context_text = " ".join(
                 f"{key}={value}" for key, value in sorted(context.items())
             )
             message = f"{message} | {context_text}"
-        logger.log(level, message)
+        if error_text:
+            message = f"{message} | error={error_text}"
+
+        log_level = level if status == "success" else logging.ERROR
+        target_logger.log(log_level, message)

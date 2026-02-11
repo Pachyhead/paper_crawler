@@ -1,15 +1,20 @@
-from paper_crawler.factory import CrawlerFactory
-from paper_crawler.sites import Aclweb, Dblp, ExampleStaticCrawler, get_site_crawlers
+from paper_crawler.factories.title_factory import TitleCrawlerFactory
+from paper_crawler.title_crawlers import (
+    AclwebPaperTitleCrawler,
+    DblpPaperTitleCrawler,
+    ExampleStaticPaperTitleCrawler,
+    get_title_crawlers,
+)
 
 
 def test_site_auto_discovery_contains_known_crawlers():
-    discovered = get_site_crawlers()
-    assert Aclweb in discovered
-    assert Dblp in discovered
-    assert ExampleStaticCrawler in discovered
+    discovered = get_title_crawlers()
+    assert AclwebPaperTitleCrawler in discovered
+    assert DblpPaperTitleCrawler in discovered
+    assert ExampleStaticPaperTitleCrawler in discovered
 
 
 def test_factory_uses_discovered_crawlers_by_default():
-    assert Aclweb in CrawlerFactory.crawler_classes
-    assert Dblp in CrawlerFactory.crawler_classes
-    assert ExampleStaticCrawler in CrawlerFactory.crawler_classes
+    assert AclwebPaperTitleCrawler in TitleCrawlerFactory.crawler_classes
+    assert DblpPaperTitleCrawler in TitleCrawlerFactory.crawler_classes
+    assert ExampleStaticPaperTitleCrawler in TitleCrawlerFactory.crawler_classes

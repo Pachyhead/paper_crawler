@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import logging
+import re
 import time
 from abc import ABC, abstractmethod
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
 from bs4 import BeautifulSoup
@@ -14,7 +15,7 @@ from bs4.element import Tag
 from .errors import FetchError, ParseError
 
 
-class BaseCrawler(ABC):
+class BasePaperCrawler(ABC):
     """Thin base crawler: shared networking/parsing/retry only."""
 
     name = "base"
@@ -49,18 +50,25 @@ class BaseCrawler(ABC):
 
     @classmethod
     @abstractmethod
+    def host_pattern(cls) -> re.Pattern[str]:
+        """Return a compiled regex used to match normalized hostnames."""
+
+    @classmethod
     def can_handle(cls, url: str) -> bool:
         """Return True when this crawler can handle the URL."""
+        hostname = cls._normalized_hostname(url)
+        return bool(cls.host_pattern().match(hostname))
 
     @abstractmethod
-    def extract_items(self, soup: BeautifulSoup, source_url: str) -> list[dict[str, Any]]:
-        """Site-specific parsing logic using direct bs4 code."""
+    def crawl(self, url: str) -> Any:
+        """Run crawler logic for the given URL."""
 
-    def crawl(self, url: str) -> list[dict[str, Any]]:
-        html = self.fetch_html(url)
-        soup = self.parse_html(html)
-        items = self.extract_items(soup, url)
-        return [self.normalize_item(item, source_url=url) for item in items]
+    @classmethod
+    def _normalized_hostname(cls, url: str) -> str:
+        hostname = (urlparse(url).hostname or "").lower().strip()
+        if hostname.startswith("www."):
+            hostname = hostname[4:]
+        return hostname
 
     def fetch_html(self, url: str) -> str:
         last_error: Exception | None = None
@@ -130,17 +138,11 @@ class BaseCrawler(ABC):
             return None
         return urljoin(base_url, href)
 
-    def normalize_item(self, item: dict[str, Any], *, source_url: str) -> dict[str, Any]:
-        normalized = {key: self._normalize_value(value) for key, value in item.items()}
-        normalized["source_url"] = source_url
-        normalized["crawler"] = self.name
+    def normalize_item(self, item: dict[str, str], *, source_url: str) -> dict[str, str]:
+        normalized = {key: self._normalize_value(str(value)) for key, value in item.items()}
+        normalized["source_url"] = self._normalize_value(source_url)
+        normalized["crawler"] = self._normalize_value(self.name)
         return normalized
 
-    def _normalize_value(self, value: Any) -> Any:
-        if isinstance(value, str):
-            return " ".join(value.split())
-        if isinstance(value, list):
-            return [self._normalize_value(v) for v in value]
-        if isinstance(value, dict):
-            return {k: self._normalize_value(v) for k, v in value.items()}
-        return value
+    def _normalize_value(self, value: str) -> str:
+        return " ".join(value.split())

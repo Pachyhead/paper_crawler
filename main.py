@@ -9,7 +9,7 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from paper_crawler.factory import CrawlerFactory
+from paper_crawler.factories.title_factory import TitleCrawlerFactory
 from utils.csv_helper import save_titles_to_csv
 from utils.timing_logger import log_execution_time
 
@@ -24,7 +24,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--output",
-        default="output/emnlp2025_titles.csv",
+        default="outputs/emnlp2025_titles.csv",
         help="Output CSV path.",
     )
     return parser.parse_args()
@@ -37,7 +37,7 @@ def main() -> int:
         log_path="logs/execution.log",
         context={"url": args.url},
     ):
-        crawler = CrawlerFactory.create(args.url)
+        crawler = TitleCrawlerFactory.create(args.url)
         items = crawler.crawl(args.url)
         output_path = save_titles_to_csv(items, args.output)
 
