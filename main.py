@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -9,40 +10,55 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from paper_crawler.factories.title_factory import TitleCrawlerFactory
-from utils.csv_helper import save_titles_to_csv
-from utils.timing_logger import log_execution_time
+from paper_crawler.orchestrator import PaperCrawlOrchestrator
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Crawl paper titles and save them to CSV.",
+        description="Run Paper Crawler Orchestrator",
     )
     parser.add_argument(
-        "--url",
-        default="https://dblp.org/db/conf/emnlp/emnlp2025.html",
-        help="Target page URL to crawl.",
+        "--titles-url",
+        default='https://dblp.org/db/conf/emnlp/emnlp2025.html',
     )
     parser.add_argument(
-        "--output",
-        default="outputs/emnlp2025_titles.csv",
-        help="Output CSV path.",
+        "--conference-url",
+        default='https://aclanthology.org/2025.emnlp-main.1'
+    )
+    parser.add_argument(
+        "--output-json",
+        default="outputs/papers.json",
+        help="Path to save crawl result as JSON.",
     )
     return parser.parse_args()
 
 
+def run(titles_url: str, conference_url: str) -> list[dict[str, str]]:
+    orchest = PaperCrawlOrchestrator()
+    return orchest.crawl(titles_url, conference_url)
+
+
+def save_result_json(result: list[dict[str, str]], output_json: str) -> Path:
+    output_path = Path(output_json)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(result, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return output_path
+
+
 def main() -> int:
     args = parse_args()
-    with log_execution_time(
-        "crawl_and_save",
-        log_path="logs/execution.log",
-        context={"url": args.url},
-    ):
-        crawler = TitleCrawlerFactory.create(args.url)
-        items = crawler.crawl(args.url)
-        output_path = save_titles_to_csv(items, args.output)
+    try:
+        result = run(args.titles_url, args.conference_url)
+    except Exception as exc:
+        print(f"error={exc}", file=sys.stderr)
+        return 1
 
-    print(f"saved={output_path}")
-    print(f"count={len(items)}")
+    output_path = save_result_json(result, args.output_json)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    print(f"saved_json={output_path}")
     return 0
 
 

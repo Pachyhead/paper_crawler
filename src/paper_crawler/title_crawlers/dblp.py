@@ -21,21 +21,16 @@ class DblpPaperTitleCrawler(BasePaperTitleCrawler):
         seen_titles: set[str] = set()
 
         # Preferred path for DBLP venue pages.
-        title_nodes = soup.select("li.entry span.title")
-
-        # Fallback selectors in case DBLP markup changes slightly.
-        if not title_nodes:
-            title_nodes = soup.select("cite span.title")
-        if not title_nodes:
-            title_nodes = soup.select("span.title")
+        title_nodes = soup.select("li.entry.inproceedings")
 
         for title_node in title_nodes:
-            title = self.text(title_node)
+            detail_url = self.attr(title_node.select_one("nav.publ div.head a"), "href") or ""
+            title = self.text(title_node.select_one("cite.data span.title"))
             if not title:
                 continue
             if title in seen_titles:
                 continue
             seen_titles.add(title)
-            items.append({"title": title})
+            items.append({"title": title, "detail_url": detail_url})
 
         return items
