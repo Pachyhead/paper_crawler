@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import time
 from contextlib import contextmanager
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -12,6 +13,9 @@ def get_file_logger(
     log_path: str | Path,
     logger_name: str = "execution_timer",
     level: int = logging.INFO,
+    rotation_enabled: bool = True,
+    max_bytes: int = 10 * 1024 * 1024,
+    backup_count: int = 5,
 ) -> logging.Logger:
     path = Path(log_path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -27,7 +31,15 @@ def get_file_logger(
         for handler in logger.handlers
     )
     if not has_target_handler:
-        handler = logging.FileHandler(resolved_path, encoding="utf-8")
+        if rotation_enabled:
+            handler = RotatingFileHandler(
+                resolved_path,
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+                encoding="utf-8",
+            )
+        else:
+            handler = logging.FileHandler(resolved_path, encoding="utf-8")
         handler.setFormatter(
             logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
         )

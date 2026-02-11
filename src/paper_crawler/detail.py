@@ -6,6 +6,7 @@ from abc import abstractmethod
 from bs4 import BeautifulSoup
 
 from .base import BasePaperCrawler
+from utils.timing_logger import log_execution_time
 
 
 class BasePaperDetailCrawler(BasePaperCrawler):
@@ -21,9 +22,15 @@ class BasePaperDetailCrawler(BasePaperCrawler):
         """Return detail fields such as abstract/pdf_url for a single paper."""
 
     def crawl(self, url: str) -> dict[str, str]:
-        html = self.fetch_html(url)
-        soup = self.parse_html(html)
-        detail = self.extract_detail(soup, url)
+        with log_execution_time(
+            "detail_fetch_parse_extract",
+            log_path="logs/detail_crawler.log",
+            logger_name="detail_crawler",
+            context={"crawler": self.name, "url": url},
+        ):
+            html = self.fetch_html(url)
+            soup = self.parse_html(html)
+            detail = self.extract_detail(soup, url)
         return self.normalize_detail(detail, detail_url=url)
 
     def normalize_detail(self, detail: dict[str, str], *, detail_url: str) -> dict[str, str]:

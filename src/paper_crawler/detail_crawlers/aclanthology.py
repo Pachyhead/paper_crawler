@@ -5,7 +5,6 @@ import re
 from bs4 import BeautifulSoup
 
 from ..detail import BasePaperDetailCrawler
-from utils.timing_logger import log_execution_time
 
 class AclanthologyPaperDetailCrawler(BasePaperDetailCrawler):
     name = "aclanthology"
@@ -17,14 +16,9 @@ class AclanthologyPaperDetailCrawler(BasePaperDetailCrawler):
         return cls._HOST_PATTERN
 
     def extract_detail(self, soup: BeautifulSoup, detail_url: str) -> dict[str, str]:
-        with log_execution_time(
-            "aclanthology_extract_detail",
-            logger=self.logger,
-            context={"crawler": self.name, "url": detail_url},
-        ):
-            abstract = self.text(soup.select_one("div.card-body.acl-abstract > span")) or ""
-            pdf_url = self.attr(soup.select_one("div.acl-paper-link-block a"), "href") or ""
-            return {
-                "abstract": abstract,
-                "pdf_url": pdf_url,
-            }
+        abstract = self.text(soup.select_one("div.card-body.acl-abstract > span")) or ""
+        pdf_url = self.attr(soup.select_one("div.acl-paper-link-block a"), "href") or ""
+        return {
+            "abstract": abstract,
+            "pdf_url": pdf_url,
+        }
