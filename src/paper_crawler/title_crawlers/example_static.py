@@ -4,7 +4,7 @@ import re
 
 from bs4 import BeautifulSoup
 
-from ..title import BasePaperTitleCrawler
+from paper_crawler.title import BasePaperTitleCrawler
 
 
 class ExampleStaticPaperTitleCrawler(BasePaperTitleCrawler):

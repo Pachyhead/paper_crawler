@@ -12,7 +12,8 @@ from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from .errors import FetchError, ParseError
+from paper_crawler.errors import FetchError, ParseError
+import pandas as pd
 
 
 class BasePaperCrawler(ABC):
@@ -138,11 +139,9 @@ class BasePaperCrawler(ABC):
             return None
         return urljoin(base_url, href)
 
-    def normalize_item(self, item: dict[str, str], *, source_url: str) -> dict[str, str]:
-        normalized = {key: self._normalize_value(str(value)) for key, value in item.items()}
-        normalized["source_url"] = self._normalize_value(source_url)
-        normalized["crawler"] = self._normalize_value(self.name)
-        return normalized
+    def normalize_items(self, items: pd.DataFrame) -> pd.DataFrame:
+        items_norm = items.map(self._normalize_value, na_action='ignore')
+        return items_norm
 
     def _normalize_value(self, value: str) -> str:
         return " ".join(value.split())

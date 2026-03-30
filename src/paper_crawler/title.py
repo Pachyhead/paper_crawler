@@ -5,9 +5,9 @@ from abc import abstractmethod
 
 from bs4 import BeautifulSoup
 
-from .base import BasePaperCrawler
+from paper_crawler.base import BasePaperCrawler
 from utils.timing_logger import log_execution_time
-
+import pandas as pd
 
 class BasePaperTitleCrawler(BasePaperCrawler):
     """Base class for crawlers that extract title list pages."""
@@ -18,10 +18,10 @@ class BasePaperTitleCrawler(BasePaperCrawler):
         """Return hostname-matching regex for title crawling."""
 
     @abstractmethod
-    def extract_items(self, soup: BeautifulSoup, source_url: str) -> list[dict[str, str]]:
+    def extract_items(self, soup: BeautifulSoup, source_url: str) -> pd.DataFrame:
         """Extract list-level paper items from parsed HTML."""
 
-    def crawl(self, url: str) -> list[dict[str, str]]:
+    def crawl(self, url: str) -> pd.DataFrame:
         with log_execution_time(
             "title_fetch_parse_extract",
             log_path="logs/title_crawler.log",
@@ -31,4 +31,4 @@ class BasePaperTitleCrawler(BasePaperCrawler):
             html = self.fetch_html(url)
             soup = self.parse_html(html)
             items = self.extract_items(soup, url)
-        return [self.normalize_item(item, source_url=url) for item in items]
+        return self.normalize_items(items)

@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my_paper_project"
+version = "0.1.0"
+
+# src 폴더 아래에 있는 패키지들을 찾으라고 알려줍니다.
+[tool.setuptools.packages.find]
+where = ["src"]

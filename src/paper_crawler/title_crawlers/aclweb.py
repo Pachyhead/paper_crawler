@@ -4,8 +4,8 @@ import re
 
 from bs4 import BeautifulSoup
 
-from ..title import BasePaperTitleCrawler
-
+from paper_crawler.title import BasePaperTitleCrawler
+import pandas as pd
 
 class AclwebPaperTitleCrawler(BasePaperTitleCrawler):
     name = "aclweb"
@@ -16,7 +16,7 @@ class AclwebPaperTitleCrawler(BasePaperTitleCrawler):
     def host_pattern(cls) -> re.Pattern[str]:
         return cls._HOST_PATTERN
 
-    def extract_items(self, soup: BeautifulSoup, source_url: str) -> list[dict[str, str]]:
+    def extract_items(self, soup: BeautifulSoup, source_url: str) -> pd.DataFrame:
         items: list[dict[str, str]] = []
         seen_titles: set[str] = set()
 
@@ -29,6 +29,6 @@ class AclwebPaperTitleCrawler(BasePaperTitleCrawler):
             if title in seen_titles:
                 continue
             seen_titles.add(title)
-            items.append({"title": title})
+            items["title"].append(title)
 
         return items

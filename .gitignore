@@ -213,3 +213,6 @@ __marimo__/
 outputs/
 logs/
 
+# etc
+nohup.out
+*.db

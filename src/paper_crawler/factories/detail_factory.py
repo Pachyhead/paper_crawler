@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..detail import BasePaperDetailCrawler
-from ..detail_crawlers import get_detail_crawlers
-from ..errors import UnsupportedSiteError
-from ..selection import SelectionStrategy, first_match_selector
+from paper_crawler.detail import BasePaperDetailCrawler
+from paper_crawler.detail_crawlers import get_detail_crawlers
+from paper_crawler.errors import UnsupportedSiteError
+from paper_crawler.selection import SelectionStrategy, first_match_selector
 
 
 class DetailCrawlerFactory:

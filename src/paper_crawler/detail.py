@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import re
 from abc import abstractmethod
+import time
+from typing import Tuple
 
 from bs4 import BeautifulSoup
 
-from .base import BasePaperCrawler
+from paper_crawler.base import BasePaperCrawler
 from utils.timing_logger import log_execution_time
-
 
 class BasePaperDetailCrawler(BasePaperCrawler):
     """Abstract interface for extracting paper details from a detail URL."""
@@ -18,23 +19,21 @@ class BasePaperDetailCrawler(BasePaperCrawler):
         """Return hostname-matching regex for detail crawling."""
 
     @abstractmethod
-    def extract_detail(self, soup: BeautifulSoup, detail_url: str) -> dict[str, str]:
+    def extract_detail(self, soup: BeautifulSoup, detail_url: str) -> Tuple[str, str]:
         """Return detail fields such as abstract/pdf_url for a single paper."""
 
-    def crawl(self, url: str) -> dict[str, str]:
+    def crawl(self, url: str) -> Tuple[str, str]:
         with log_execution_time(
             "detail_fetch_parse_extract",
             log_path="logs/detail_crawler.log",
             logger_name="detail_crawler",
             context={"crawler": self.name, "url": url},
         ):
+            time.sleep(0.1)
             html = self.fetch_html(url)
             soup = self.parse_html(html)
             detail = self.extract_detail(soup, url)
-        return self.normalize_detail(detail, detail_url=url)
+        return self.normalize_detail(detail)
 
-    def normalize_detail(self, detail: dict[str, str], *, detail_url: str) -> dict[str, str]:
-        normalized = {key: self._normalize_value(str(value)) for key, value in detail.items()}
-        normalized["detail_url"] = self._normalize_value(detail_url)
-        normalized["detail_crawler"] = self._normalize_value(self.name)
-        return normalized
+    def normalize_detail(self, detail: Tuple[str, str]) -> Tuple[str, str]:
+        return tuple(map(self._normalize_value, detail))

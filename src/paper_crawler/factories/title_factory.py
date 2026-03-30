@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..errors import UnsupportedSiteError
-from ..selection import SelectionStrategy, first_match_selector
-from ..title import BasePaperTitleCrawler
-from ..title_crawlers import get_title_crawlers
+from paper_crawler.errors import UnsupportedSiteError
+from paper_crawler.selection import SelectionStrategy, first_match_selector
+from paper_crawler.title import BasePaperTitleCrawler
+from paper_crawler.title_crawlers import get_title_crawlers
+import pandas as pd
 
 
 class TitleCrawlerFactory:
@@ -22,7 +23,7 @@ class TitleCrawlerFactory:
         return crawler_class(**crawler_kwargs)
 
     @classmethod
-    def crawl(cls, url: str, **crawler_kwargs: Any) -> list[dict[str, str]]:
+    def crawl(cls, url: str, **crawler_kwargs: Any) -> pd.DataFrame:
         crawler = cls.create(url, **crawler_kwargs)
         return crawler.crawl(url)
 
