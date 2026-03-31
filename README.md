@@ -2,8 +2,11 @@
 
 ## Installation
 ```bash
+# 프로젝트 디렉토리로 이동
 python3 -m venv .venv
+source .venv/bin/activate
 pip3 install -e .
+python3 main.py
 ```
 
 ## 세부 사용법
