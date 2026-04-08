@@ -13,6 +13,7 @@ def init_db(table_name: str) -> Table:
         Column('detail_url', String, unique=True, nullable=False),
         Column('abstract', Text, nullable=True),
         Column('pdf_link', String, nullable=True),
+        Column('cleaned_title', String, nullable=True),
         Column('selected', Boolean, server_default='0', nullable=False),
         extend_existing=True # 이미 메모리에 해당 이름의 객체가 있어도 덮어쓰도록 설정
     )

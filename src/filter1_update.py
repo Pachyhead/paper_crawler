@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy import update
 from src.db_manager.database import engine, init_db
 
@@ -7,11 +9,11 @@ def mark_filtered_as_selected(title_list, table_name="EMNLP_2025"):
     
     table = init_db(table_name)
 
-    unique_titles = list(set(title_list))
+    cleaned_titles = [re.sub(r'[^a-zA-Z0-9가-힣]', '', t).lower() for t in set(title_list)]
 
     stmt = (
         update(table)
-        .where(table.c.title.in_(unique_titles))
+        .where(table.c.cleaned_title.in_(cleaned_titles))
         .values(selected=1)
     )
 

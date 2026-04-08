@@ -5,6 +5,7 @@ from typing import TypedDict
 from config import PROJECT_ROOT
 from paper_crawler.factories.title_factory import TitleCrawlerFactory
 from db_manager.database import engine, init_db
+import pandas as pd
 
 class ConferenceTarget(TypedDict):
     name: str
@@ -31,6 +32,11 @@ TARGET_CONFERENCES: list[ConferenceTarget] = [
 
 ## OUTPUT_TXT = PROJECT_ROOT / "outputs" / "title_results.txt"
 
+def add_cleaned_titles(df: pd.DataFrame) -> pd.DataFrame:
+    df["cleaned_title"] = df["title"].str.replace(r'[^a-zA-Z0-9가-힣]', '', regex=True).str.lower()
+
+    return df
+
 def crawl_urls(conferences: list[ConferenceTarget])->None:
     results: dict[str, list[dict[str, str]]] = {}
 
@@ -40,6 +46,8 @@ def crawl_urls(conferences: list[ConferenceTarget])->None:
         try:
             items = TitleCrawlerFactory.crawl(url)
             # items = pd.DataFrame(['title', 'detail_url'])
+            items = add_cleaned_titles(items)
+            # items = pd.DataFrame(['title', 'detail_url', 'cleaned_title'])
             
             table = init_db(name)
             try:
