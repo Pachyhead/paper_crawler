@@ -1,5 +1,6 @@
 from crawl_titles import crawl_titles
 from crawl_detail import crawl_detail
+from Filtering import filter_titles
 from filter1_update import mark_filtered_as_selected
 from db_manager.database import engine, init_db, Table, Engine, text
 
@@ -31,7 +32,7 @@ if __name__ == "__main__":
     crawl_titles()
 
     # LLM filtering 후 결과를 리스트로 저장
-    title_list: list[str] = pseudo_function()
+    title_list: list[str] = filter_titles()
 
     # 매칭된 paper title list를 바탕으로 해당되는 행의 selected 속성을 0 -> 1 변환
     mark_filtered_as_selected(title_list=title_list)
@@ -39,7 +40,6 @@ if __name__ == "__main__":
     # for test
     for_test(table_name="EMNLP_2025", engine=engine)
 
+    print("Detail Crawl Start.")
     # selected가 1인 행을 대상으로 https://aclanthology.org/ 에서 abstract와 pdf 다운로드 링크를 수집
     crawl_detail()
-
-
