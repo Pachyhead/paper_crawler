@@ -11,6 +11,11 @@ def mark_filtered_as_selected(title_list, table_name="EMNLP_2025"):
 
     cleaned_titles = [re.sub(r'[^a-zA-Z0-9가-힣]', '', t).lower() for t in set(title_list)]
 
+    reset_stmt = (
+        update(table)
+        .values(selected=0)
+    )
+
     stmt = (
         update(table)
         .where(table.c.cleaned_title.in_(cleaned_titles))
@@ -18,5 +23,6 @@ def mark_filtered_as_selected(title_list, table_name="EMNLP_2025"):
     )
 
     with engine.connect() as conn:
+        conn.execute(reset_stmt)
         conn.execute(stmt)
         conn.commit()
